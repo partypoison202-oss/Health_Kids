@@ -9,7 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyCbN3NlmLwscqvhwvzWNGd6K_HCYDasMXQ"
+      },
+      "bundleIdentifier": "HealthKids"
     },
     "android": {
       "adaptiveIcon": {
@@ -37,6 +41,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "13b74db8-5c08-42c0-933a-44ba1a9c5226"
+      }
     }
   }
 }
