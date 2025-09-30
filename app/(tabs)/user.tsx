@@ -1,15 +1,15 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { MaterialIcons, FontAwesome, AntDesign } from '@expo/vector-icons';
 import { useLevel } from '@/app/contexts/LevelContext';
+import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import { ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ProfileScreen() {
   const { currentLevel, xp, totalXp } = useLevel(); // totalXp = currentLevel * 100
   
   // Sistema de ligas (puedes personalizar los nombres)
   const leagues = [
-    { name: "Novato", icon: "rook", color: "#A0A0A0", minLevel: 1 },
+    { name: "Novato", icon: "trophy", color: "#A0A0A0", minLevel: 1 },
     { name: "Explorador", icon: "map-marker", color: "#4CAF50", minLevel: 5 },
     { name: "Aventurero", icon: "compass", color: "#2196F3", minLevel: 10 },
     { name: "Campeón", icon: "trophy", color: "#FFC107", minLevel: 15 },
@@ -33,6 +33,8 @@ export default function ProfileScreen() {
         style={styles.overlay}
       >
         {/* Encabezado con avatar */}
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+
         <View style={styles.header}>
           <View style={[styles.avatarContainer, { borderColor: currentLeague.color }]}>
             <FontAwesome name="user" size={60} color={currentLeague.color} />
@@ -78,7 +80,7 @@ export default function ProfileScreen() {
           </View>
           
           <View style={styles.statCard}>
-            <AntDesign name="clockcircle" size={30} color="#f78b2a" />
+            <AntDesign name="clock-circle" size={30} color="#f78b2a" />
             <Text style={styles.statValue}>45</Text>
             <Text style={styles.statLabel}>Min activos</Text>
           </View>
@@ -104,6 +106,7 @@ export default function ProfileScreen() {
           <MaterialIcons name="edit" size={24} color="white" />
           <Text style={styles.editButtonText}>Personalizar perfil</Text>
         </TouchableOpacity>
+        </ScrollView>
       </LinearGradient>
     </ImageBackground>
   );
@@ -115,7 +118,10 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal:20,
+  },
+  scrollContent: {
+    paddingBottom: 10, // para que no quede pegado al borde
   },
   header: {
     alignItems: 'center',

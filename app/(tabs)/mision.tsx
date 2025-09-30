@@ -1,30 +1,55 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
-import { ThemedView } from '@/components/ThemedView';
-import { ThemedText } from '@/components/ThemedText';
 import { useLevel } from '@/app/contexts/LevelContext';
+import { ThemedView } from '@/components/ThemedView';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const missions = [
   {
     id: 1,
     title: "Primeros Pasos",
     description: "Completa tu primera lección",
-    reward: 50,
+    reward: 10,
     requiredLevel: 1,
     icon: 'directions-walk',
     color: '#4CAF50'
   },
   {
     id: 2,
-    title: "Estudiante Aplicado",
+    title: "¿Qué sabes?",
     description: "Completa 3 días consecutivos",
-    reward: 100,
+    reward: 15,
     requiredLevel: 2,
     icon: 'school',
     color: '#2196F3'
   },
-  // ... más misiones
+  {
+    id: 3,
+    title: "En forma",
+    description: "Recorre 3km",
+    reward: 50,
+    requiredLevel: 5,
+    icon: 'military-tech', 
+    color: '#A6A449'
+  },
+  {
+    id: 4,
+    title: "Prólogo",
+    description: "Completa 3 días consecutivos",
+    reward: 30,
+    requiredLevel: 7,
+    icon: 'games',
+    color: '#F52727'
+  },
+  {
+    id: 5,
+    title: "Lección no.1",
+    description: "Completa el prólogo",
+    reward: 100,
+    requiredLevel: 12,
+    icon: 'menu-book',
+    color: '#2E27F5'
+  },
 ];
 
 export default function MissionsScreen() {
@@ -61,7 +86,7 @@ export default function MissionsScreen() {
       </LinearGradient>
 
       {/* Lista de misiones */}
-      <View style={styles.missionsList}>
+      <ScrollView contentContainerStyle={styles.missionsList}>
         {missions.map(mission => (
           <View 
             key={mission.id} 
@@ -97,7 +122,7 @@ export default function MissionsScreen() {
             )}
           </View>
         ))}
-      </View>
+      </ScrollView>
     </ThemedView>
   );
 }
@@ -108,11 +133,11 @@ const styles = StyleSheet.create({
   },
   progressHeader: {
     padding: 20,
-    paddingTop: 50,
+    paddingTop: 60,
     paddingBottom: 30,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
-    marginBottom: 20,
+    marginBottom: 5,
   },
   levelText: {
     color: 'white',
