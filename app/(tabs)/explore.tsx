@@ -1,45 +1,55 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Animated } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from 'react-native-maps';
+import { useLevel } from '@/app/contexts/LevelContext';
+import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
-import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import { Pedometer } from 'expo-sensors';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from 'react-native-maps';
 
 export default function ExploreScreen() {
+  const { currentLevel, xp, addXp, addSteps, steps } = useLevel();
+  const [lastXpSteps, setLastXpSteps] = useState(0);
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [region, setRegion] = useState(null);
-  const [distance, setDistance] = useState(0); // Distancia en metros
-  const [steps, setSteps] = useState(0);
+  const [distance, setDistance] = useState(0);
   const [path, setPath] = useState([]);
+  const [isPedometerAvailable, setIsPedometerAvailable] = useState('checking...');
   const mapRef = useRef(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  // Calcular distancia entre dos puntos
+  // 👇 Aquí va tu lógica de XP por pasos
+  useEffect(() => {
+    if (steps >= lastXpSteps + 10) {
+      const stepsEarned = Math.floor((steps - lastXpSteps) / 10);
+      addXp(stepsEarned); // +1 XP por cada 10 pasos
+      setLastXpSteps(lastXpSteps + stepsEarned * 10);
+    }
+  }, [steps]);
+
+  // Calcular distancia entre dos puntos (GPS)
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371e3; // Radio de la Tierra en metros
+    const R = 6371e3;
     const φ1 = lat1 * Math.PI/180;
     const φ2 = lat2 * Math.PI/180;
     const Δφ = (lat2-lat1) * Math.PI/180;
     const Δλ = (lon2-lon1) * Math.PI/180;
-
     const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
               Math.cos(φ1) * Math.cos(φ2) *
               Math.sin(Δλ/2) * Math.sin(Δλ/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
     return R * c;
   };
 
   useEffect(() => {
     (async () => {
-      // 1. Solicitar permisos
+      // --- UBICACIÓN ---
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Permiso de ubicación denegado');
         return;
       }
 
-      // 2. Obtener ubicación inicial
       let currentLocation = await Location.getCurrentPositionAsync({});
       setLocation(currentLocation);
       setRegion({
@@ -53,26 +63,21 @@ export default function ExploreScreen() {
         longitude: currentLocation.coords.longitude
       }]);
 
-      // 3. Configurar seguimiento
       const subscriber = await Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.BestForNavigation,
-          distanceInterval: 2, // Actualizar cada 2 metros
+          distanceInterval: 2,
         },
         (newLocation) => {
           if (location) {
-            // Calcular distancia recorrida
             const dist = calculateDistance(
               location.coords.latitude,
               location.coords.longitude,
               newLocation.coords.latitude,
               newLocation.coords.longitude
             );
-            
             setDistance(prev => prev + dist);
-            setSteps(prev => prev + Math.floor(dist / 0.75)); // Aprox. 0.75m por paso
           }
-
           setLocation(newLocation);
           setPath(prev => [...prev, {
             latitude: newLocation.coords.latitude,
@@ -81,14 +86,27 @@ export default function ExploreScreen() {
         }
       );
 
-      // Animación de entrada
+      // --- CONTADOR DE PASOS ---
+      const pedometerAvailable = await Pedometer.isAvailableAsync();
+      setIsPedometerAvailable(pedometerAvailable ? 'sí' : 'no');
+
+      let pedometerSubscription;
+      if (pedometerAvailable) {
+        pedometerSubscription = Pedometer.watchStepCount(result => {
+          addSteps(result.steps); // pasos en tiempo real
+        });
+      }
+
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 1000,
         useNativeDriver: true,
       }).start();
 
-      return () => subscriber.remove();
+      return () => {
+        subscriber?.remove();
+        pedometerSubscription && pedometerSubscription.remove();
+      };
     })();
   }, []);
 
@@ -110,7 +128,7 @@ export default function ExploreScreen() {
         style={styles.map}
         provider={PROVIDER_GOOGLE}
         region={region}
-        showsUserLocation={false} // Desactivamos el marcador por defecto
+        showsUserLocation={false}
         showsMyLocationButton={false}
       >
         {location && (
@@ -134,7 +152,6 @@ export default function ExploreScreen() {
         )}
       </MapView>
 
-      {/* Panel de estadísticas */}
       <Animated.View style={[styles.statsPanel, { opacity: fadeAnim }]}>
         <View style={styles.statItem}>
           <MaterialIcons name="directions-walk" size={24} color="#f78b2a" />
@@ -142,7 +159,7 @@ export default function ExploreScreen() {
         </View>
         <View style={styles.statItem}>
           <MaterialIcons name="directions" size={24} color="#f78b2a" />
-          <Text style={styles.statText}>{(distance).toFixed(1)} metros</Text>
+          <Text style={styles.statText}>{(steps * 0.64).toFixed(1)} metros</Text>
         </View>
       </Animated.View>
 
@@ -153,15 +170,14 @@ export default function ExploreScreen() {
         </View>
       )}
 
-      <TouchableOpacity
-        style={styles.centerButton}
-        onPress={centerMap}
-      >
+      <TouchableOpacity style={styles.centerButton} onPress={centerMap}>
         <MaterialIcons name="my-location" size={24} color="#fff" />
       </TouchableOpacity>
     </View>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   container: {

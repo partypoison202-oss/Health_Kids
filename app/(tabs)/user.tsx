@@ -1,13 +1,21 @@
 import { useLevel } from '@/app/contexts/LevelContext';
 import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ProfileScreen() {
-  const { currentLevel, xp, totalXp } = useLevel(); // totalXp = currentLevel * 100
+  const { currentLevel, xp, totalXp, steps, resetSteps, resetXp } = useLevel(); 
+  const [usageTime, setUsageTime] = useState(0);
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    setUsageTime(prev => prev + 1);
+  }, 1000); // cada segundo
+
+  return () => clearInterval(interval); // limpia al salir
+}, []);
   
-  // Sistema de ligas (puedes personalizar los nombres)
   const leagues = [
     { name: "Novato", icon: "trophy", color: "#A0A0A0", minLevel: 1 },
     { name: "Explorador", icon: "map-marker", color: "#4CAF50", minLevel: 5 },
@@ -69,19 +77,19 @@ export default function ProfileScreen() {
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
             <MaterialIcons name="directions-walk" size={30} color="#f78b2a" />
-            <Text style={styles.statValue}>1,245</Text>
+            <Text style={styles.statValue}>{steps}</Text>
             <Text style={styles.statLabel}>Pasos hoy</Text>
           </View>
           
           <View style={styles.statCard}>
             <FontAwesome name="map-marker" size={30} color="#f78b2a" />
-            <Text style={styles.statValue}>5.7</Text>
+            <Text style={styles.statValue}>{(steps * 0.00064).toFixed(1)}</Text>
             <Text style={styles.statLabel}>KM recorridos</Text>
           </View>
           
           <View style={styles.statCard}>
             <AntDesign name="clock-circle" size={30} color="#f78b2a" />
-            <Text style={styles.statValue}>45</Text>
+            <Text style={styles.statValue}>{(usageTime / 60).toFixed(1)}</Text>
             <Text style={styles.statLabel}>Min activos</Text>
           </View>
         </View>
@@ -106,6 +114,12 @@ export default function ProfileScreen() {
           <MaterialIcons name="edit" size={24} color="white" />
           <Text style={styles.editButtonText}>Personalizar perfil</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity style={styles.editButton2} onPress={() => {resetSteps(); resetXp();}}>
+          <MaterialIcons name="settings" size={24} color="white" />
+          <Text style={styles.editButtonText}>Reiniciar contadores</Text>
+        </TouchableOpacity>
+
         </ScrollView>
       </LinearGradient>
     </ImageBackground>
@@ -244,10 +258,21 @@ const styles = StyleSheet.create({
     color: '#3D3D3D',
   },
   editButton: {
+    margin: 5,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#f78b2a',
+    padding: 15,
+    borderRadius: 12,
+    gap: 10,
+  },
+  editButton2: {
+    margin: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f72a2aff',
     padding: 15,
     borderRadius: 12,
     gap: 10,
