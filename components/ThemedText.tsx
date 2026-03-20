@@ -1,11 +1,16 @@
-import { StyleSheet, Text, type TextProps } from 'react-native';
-
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { StyleSheet, Text, type TextProps } from 'react-native';
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
+  type?: 
+    | 'default' 
+    | 'title' 
+    | 'defaultSemiBold' 
+    | 'subtitle' 
+    | 'link'
+    | 'button'; // 👈 AGREGADO
 };
 
 export function ThemedText({
@@ -15,7 +20,10 @@ export function ThemedText({
   type = 'default',
   ...rest
 }: ThemedTextProps) {
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  const color = useThemeColor(
+    { light: lightColor, dark: darkColor }, 
+    type === 'button' ? 'background' : 'text' // 👈 opcional (puedes dejar 'text' si quieres)
+  );
 
   return (
     <Text
@@ -26,6 +34,7 @@ export function ThemedText({
         type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
         type === 'subtitle' ? styles.subtitle : undefined,
         type === 'link' ? styles.link : undefined,
+        type === 'button' ? styles.button : undefined, // 👈 AGREGADO
         style,
       ]}
       {...rest}
@@ -56,5 +65,12 @@ const styles = StyleSheet.create({
     lineHeight: 30,
     fontSize: 16,
     color: '#0a7ea4',
+  },
+
+  // 👇 NUEVO ESTILO PARA BOTONES
+  button: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
