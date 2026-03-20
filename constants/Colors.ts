@@ -14,7 +14,7 @@ export const Colors = {
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
 
-    // 👇 AGREGA ESTO
+
     border: '#D0D5DD',
     inputBackground: '#F9FAFB',
     textDim: '#98A2B3',
@@ -28,7 +28,7 @@ export const Colors = {
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
 
-    // 👇 AGREGA ESTO TAMBIÉN
+
     border: '#3A3A3A',
     inputBackground: '#1E1E1E',
     textDim: '#A1A1AA',
