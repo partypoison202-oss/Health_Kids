@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 //Index todo poderoso 
+//Cambio e implementeacion de la poderosa base de datos
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
