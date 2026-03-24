@@ -11,6 +11,7 @@ export type ThemedTextProps = TextProps & {
     | 'subtitle' 
     | 'link'
     | 'button'; // 👈 AGREGADO
+    
 };
 
 export function ThemedText({
