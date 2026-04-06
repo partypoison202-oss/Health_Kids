@@ -24,6 +24,13 @@ export default function RootLayout() {
           }} 
         />
         <Stack.Screen 
+          name="registro" 
+          options={{ 
+            headerShown: false,
+            animation: 'slide_from_right'
+          }} 
+        />
+        <Stack.Screen 
           name="controlParental" 
           options={{ 
             headerShown: false,

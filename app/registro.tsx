@@ -6,45 +6,66 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+    Alert,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 
-export default function LoginScreen() {
-  const [username, setUsername] = useState('');
+export default function RegisterScreen() {
+  const [nombre, setNombre] = useState('');
+  const [correo, setCorreo] = useState('');
+  const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
   const router = useRouter();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
 
-  const handleLogin = async () => {
-    if (!username || !password) {
-      alert('Por favor ingresa usuario y contraseña.');
+  const handleRegister = async () => {
+    if (!nombre || !correo || !usuario || !password || !confirmPassword) {
+      Alert.alert('Campos incompletos', 'Por favor llena todos los campos.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Las contraseñas no coinciden.');
       return;
     }
 
     setLoading(true);
     try {
-      // Usuario administrador hardcodeado
-      if (username === 'Admin' && password === '1234') {
-        router.replace('/controlParental');
-        return;
-      }
-
-      // Buscar en usuarios registrados con AsyncStorage
+      // Verificar si el usuario ya existe
       const usuariosJSON = await AsyncStorage.getItem('usuarios');
       const usuarios = usuariosJSON ? JSON.parse(usuariosJSON) : [];
 
-      const encontrado = usuarios.find(
-        (u: any) => u.usuario === username && u.password === password
+      const yaExiste = usuarios.find(
+        (u: any) => u.usuario === usuario || u.correo === correo
       );
 
-      if (encontrado) {
-        router.replace('/controlParental');
-      } else {
-        alert('Credenciales incorrectas');
+      if (yaExiste) {
+        Alert.alert('Error', 'El usuario o correo ya está registrado.');
+        setLoading(false);
+        return;
       }
+
+      // Guardar nuevo usuario
+      const nuevoUsuario = { nombre, correo, usuario, password };
+      usuarios.push(nuevoUsuario);
+      await AsyncStorage.setItem('usuarios', JSON.stringify(usuarios));
+
+      Alert.alert('¡Registro exitoso!', `Bienvenido, ${nombre}!`, [
+        { text: 'Iniciar sesión', onPress: () => router.replace('/') },
+      ]);
     } catch (error) {
-      alert('Error al iniciar sesión. Intenta de nuevo.');
+      Alert.alert('Error', 'No se pudo completar el registro. Intenta de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -62,7 +83,7 @@ export default function LoginScreen() {
         contentContainerStyle={styles.scrollContainer}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={[styles.header, { backgroundColor: "#3D3D3D" }]}>
+        <View style={[styles.header, { backgroundColor: '#3D3D3D' }]}>
           <Image
             source={require('@/assets/images/user-icon.png')}
             style={styles.userImage}
@@ -71,16 +92,36 @@ export default function LoginScreen() {
 
         <View style={styles.formContainer}>
           <ThemedView style={styles.titleContainer}>
-            <ThemedText type="title" style={styles.titleText}>Iniciar sesión</ThemedText>
+            <ThemedText type="title" style={styles.titleText}>
+              Crear cuenta
+            </ThemedText>
           </ThemedView>
 
           <ThemedView style={styles.inputsContainer}>
             <TextInput
               style={[styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.inputBackground }]}
+              placeholder="Nombre completo"
+              placeholderTextColor={colors.textDim}
+              value={nombre}
+              onChangeText={setNombre}
+              returnKeyType="next"
+            />
+            <TextInput
+              style={[styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.inputBackground }]}
+              placeholder="Correo electrónico"
+              placeholderTextColor={colors.textDim}
+              value={correo}
+              onChangeText={setCorreo}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              returnKeyType="next"
+            />
+            <TextInput
+              style={[styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.inputBackground }]}
               placeholder="Usuario"
               placeholderTextColor={colors.textDim}
-              value={username}
-              onChangeText={setUsername}
+              value={usuario}
+              onChangeText={setUsuario}
               autoCapitalize="none"
               returnKeyType="next"
             />
@@ -91,31 +132,40 @@ export default function LoginScreen() {
               secureTextEntry
               value={password}
               onChangeText={setPassword}
+              returnKeyType="next"
+            />
+            <TextInput
+              style={[styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.inputBackground }]}
+              placeholder="Confirmar contraseña"
+              placeholderTextColor={colors.textDim}
+              secureTextEntry
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
               returnKeyType="done"
-              onSubmitEditing={handleLogin}
+              onSubmitEditing={handleRegister}
             />
           </ThemedView>
 
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={[styles.button, { backgroundColor: loading ? '#ccc' : '#f78b2a' }]}
-              onPress={handleLogin}
+              onPress={handleRegister}
               disabled={loading}
             >
               <ThemedText type="button" style={styles.buttonText}>
-                {loading ? 'Entrando...' : 'Entrar'}
+                {loading ? 'Registrando...' : 'Registrarse'}
               </ThemedText>
             </TouchableOpacity>
           </View>
 
           <TouchableOpacity
-            style={styles.registerLinkContainer}
-            onPress={() => router.push('/registro')}
+            style={styles.loginLinkContainer}
+            onPress={() => router.replace('/')}
           >
-            <ThemedText style={[styles.registerLinkText, { color: colors.textDim }]}>
-              ¿No tienes cuenta?{' '}
-              <ThemedText style={[styles.registerLinkBold, { color: '#f78b2a' }]}>
-                Regístrate
+            <ThemedText style={[styles.loginLinkText, { color: colors.textDim }]}>
+              ¿Ya tienes cuenta?{' '}
+              <ThemedText style={[styles.loginLinkBold, { color: '#f78b2a' }]}>
+                Inicia sesión
               </ThemedText>
             </ThemedText>
           </TouchableOpacity>
@@ -177,7 +227,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   buttonText: { color: 'white', fontSize: 18, fontWeight: 'bold' },
-  registerLinkContainer: { alignItems: 'center', marginTop: 20 },
-  registerLinkText: { fontSize: 14 },
-  registerLinkBold: { fontWeight: 'bold' },
+  loginLinkContainer: { alignItems: 'center', marginTop: 20 },
+  loginLinkText: { fontSize: 14 },
+  loginLinkBold: { fontWeight: 'bold' },
 });
