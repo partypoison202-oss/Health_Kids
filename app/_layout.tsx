@@ -4,7 +4,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-
+//Tirando codigo
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
