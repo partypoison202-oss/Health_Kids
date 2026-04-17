@@ -5,6 +5,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 //Tirando codigo
+//Cambolas
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
