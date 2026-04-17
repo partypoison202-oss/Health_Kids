@@ -4,8 +4,6 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-//Tirando codigo
-//Cambolas
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
@@ -22,6 +20,13 @@ export default function RootLayout() {
           options={{ 
             headerShown: false,
             animation: 'fade'
+          }} 
+        />
+        <Stack.Screen 
+          name="registro" 
+          options={{ 
+            headerShown: false,
+            animation: 'slide_from_right'
           }} 
         />
         <Stack.Screen 
@@ -44,3 +49,4 @@ export default function RootLayout() {
     </ThemeProvider>
   );
 }
+

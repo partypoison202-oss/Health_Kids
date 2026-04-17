@@ -3,6 +3,8 @@
  * https://docs.expo.dev/guides/color-schemes/
  */
 
+//Comentarios, para la documentaacion claro que si.
+
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
